@@ -8,11 +8,12 @@ import Data.Bits ((.&.), shiftR, shiftL)
 #if METHOD == 1
 ----------------------------------------------------------------
 -- Nievergelt
-isBalanced :: Map k a -> Map k a -> Bool
-isBalanced a b = 2 * y * y <= (x + y) * (x + y)
-  where
-    x = size a + 1
-    y = size b + 1
+isBalancedSize :: Int -> Int -> Bool
+isBalancedSize ls rs =
+    2 * y * y <= (x + y) * (x + y)
+      where
+        x = ls + 1
+        y = rs + 1
 
 isSingle :: Map k a -> Map k a -> Bool
 isSingle a b = w * w < 2 * z * z
@@ -28,8 +29,9 @@ a .<. b
   | a >= b    = False
   | otherwise = ((a .&. b) `shiftL` 1) < b
 
-isBalanced :: Map k a -> Map k a -> Bool
-isBalanced a b = not $ size a .<. (size b `shiftR` 1)
+isBalancedSize :: Int -> Int -> Bool
+isBalancedSize ls rs =
+    not $ ls .<. (rs `shiftR` 1)
 
 isSingle :: Map k a -> Map k a -> Bool
 isSingle a b = not $ size b .<. size a
@@ -41,11 +43,8 @@ delta,ratio :: Int
 delta = 4
 ratio = 2
 
-isBalanced :: Map k a -> Map k a -> Bool
-isBalanced a b = x + y <= 1 || delta * x >= y
-  where
-    x = size a
-    y = size b
+isBalancedSize :: Int -> Int -> Bool
+isBalancedSize x y = x + y <= 1 || delta * x >= y                  
 
 isSingle :: Map k a -> Map k a -> Bool
 isSingle a b = z < ratio * w
@@ -56,6 +55,12 @@ isSingle a b = z < ratio * w
 #endif
 
 ----------------------------------------------------------------
+isBalanced :: Map k a -> Map k a -> Bool
+isBalanced l r = isBalancedSize x y
+  where
+    x = size l
+    y = size r
+
 balanceL :: k -> a -> Map k a -> Map k a -> Map k a
 balanceL k x l r
   | isBalanced l r = bin k x l r
